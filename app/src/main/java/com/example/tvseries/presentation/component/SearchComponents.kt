@@ -41,7 +41,7 @@ fun SearchBar(
             OutlinedTextField(
                 value = query,
                 onValueChange = onQueryChange,
-                placeholder = { Text("Rechercher une sÃ©rie...") },
+                placeholder = { Text("Rechercher une série...") },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,

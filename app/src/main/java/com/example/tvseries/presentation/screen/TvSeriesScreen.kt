@@ -1,13 +1,15 @@
 // presentation/screen/TvSeriesScreen.kt
 package com.example.tvseries.presentation.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tvseries.presentation.component.*
@@ -27,117 +29,108 @@ fun TvSeriesScreen(
 
     var showFilters by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        if (isSearchMode) "Recherche" else "Séries TV Populaires"
-                    )
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            viewModel.loadTvSeries(isRefresh = true)
-                            showFilters = false
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Actualiser"
-                        )
-                    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5)) // Fond gris clair
+    ) {
+        // Titre centré (remplace la TopAppBar)
+        Text(
+            text = "TV Series",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+        )
+
+        // Barre de recherche
+        SearchBar(
+            query = searchFilter.query,
+            onQueryChange = { query ->
+                viewModel.searchTvSeries(query)
+            },
+            onSearch = { query ->
+                viewModel.searchTvSeries(query)
+            },
+            isSearchActive = searchFilter.hasActiveFilters(),
+            onToggleFilters = { showFilters = !showFilters }
+        )
+
+        // Panel de filtres par genre
+        GenreFilterPanel(
+            genres = availableGenres,
+            onToggleGenre = { genreName ->
+                viewModel.toggleGenre(genreName)
+            },
+            onClearFilters = {
+                viewModel.clearGenreFilters()
+            },
+            isVisible = showFilters
+        )
+
+        // Informations sur les résultats de recherche (sans sous-titre)
+        if (isSearchMode && searchFilter.query.isNotEmpty()) {
+            SearchResultsInfo(
+                resultsCount = tvSeriesList.size,
+                searchQuery = searchFilter.query,
+                selectedGenres = searchFilter.selectedGenres,
+                onClearSearch = {
+                    viewModel.loadTvSeries(isRefresh = true)
+                    showFilters = false
                 }
             )
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+
+        // Contenu principal
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Barre de recherche
-            SearchBar(
-                query = searchFilter.query,
-                onQueryChange = { query ->
-                    viewModel.searchTvSeries(query)
-                },
-                onSearch = { query ->
-                    viewModel.searchTvSeries(query)
-                },
-                isSearchActive = searchFilter.hasActiveFilters(),
-                onToggleFilters = { showFilters = !showFilters }
-            )
-
-            // Panel de filtres par genre
-            GenreFilterPanel(
-                genres = availableGenres,
-                onToggleGenre = { genreName ->
-                    viewModel.toggleGenre(genreName)
-                },
-                onClearFilters = {
-                    viewModel.clearGenreFilters()
-                },
-                isVisible = showFilters
-            )
-
-            // Informations sur les rÃ©sultats de recherche
-            if (isSearchMode) {
-                SearchResultsInfo(
-                    resultsCount = tvSeriesList.size,
-                    searchQuery = searchFilter.query,
-                    selectedGenres = searchFilter.selectedGenres,
-                    onClearSearch = {
-                        viewModel.loadTvSeries(isRefresh = true)
-                        showFilters = false
-                    }
-                )
-            }
-
-            // Contenu principal
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when {
-                    // Ã‰tat de chargement initial
-                    paginationState.isLoading && tvSeriesList.isEmpty() -> {
-                        LoadingIndicator()
-                    }
-
-                    // Liste vide aprÃ¨s recherche
-                    tvSeriesList.isEmpty() && isSearchMode && !paginationState.isLoading -> {
-                        EmptySearchResults(
-                            query = searchFilter.query,
-                            selectedGenres = searchFilter.selectedGenres,
-                            onClearSearch = {
-                                viewModel.loadTvSeries(isRefresh = true)
-                                showFilters = false
-                            },
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-
-                    // Affichage des donnÃ©es
-                    else -> {
-                        TvSeriesGrid(
-                            tvSeries = tvSeriesList,
-                            isLoading = paginationState.isLoading,
-                            isLoadingMore = paginationState.isLoadingMore,
-                            hasMorePages = paginationState.hasMorePages,
-                            onLoadMore = { viewModel.loadMoreTvSeries() }
-                        )
-                    }
+            when {
+                // État de chargement initial
+                paginationState.isLoading && tvSeriesList.isEmpty() -> {
+                    LoadingIndicator()
                 }
 
-                // Affichage des erreurs
-                paginationState.error?.let { error ->
-                    if (tvSeriesList.isEmpty()) {
-                        ErrorMessage(
-                            message = error,
-                            onRetry = { viewModel.retry() },
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                // Liste vide après recherche
+                tvSeriesList.isEmpty() && isSearchMode && !paginationState.isLoading -> {
+                    EmptySearchResults(
+                        query = searchFilter.query,
+                        selectedGenres = searchFilter.selectedGenres,
+                        onClearSearch = {
+                            viewModel.loadTvSeries(isRefresh = true)
+                            showFilters = false
+                        },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
+                // Affichage des données
+                else -> {
+                    TvSeriesGrid(
+                        tvSeries = tvSeriesList,
+                        isLoading = paginationState.isLoading,
+                        isLoadingMore = paginationState.isLoadingMore,
+                        hasMorePages = paginationState.hasMorePages,
+                        onLoadMore = { viewModel.loadMoreTvSeries() }
+                    )
+                }
+            }
+
+            // Affichage des erreurs (sans bouton retry)
+            paginationState.error?.let { error ->
+                if (tvSeriesList.isEmpty()) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
                 }
             }
         }
@@ -156,14 +149,14 @@ fun EmptySearchResults(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "ðŸ”",
+            text = "🔍",
             style = MaterialTheme.typography.displayMedium
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Aucun rÃ©sultat trouvÃ©",
+            text = "Aucun résultat trouvé",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -191,7 +184,7 @@ fun EmptySearchResults(
         Button(
             onClick = onClearSearch
         ) {
-            Text("Voir toutes les sÃ©ries")
+            Text("Voir toutes les séries")
         }
     }
 }

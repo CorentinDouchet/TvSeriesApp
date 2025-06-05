@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.TvSeries" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.TvSeries" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Fond gris clair pour toute l'application -->
+        <item name="android:colorBackground">#F5F5F5</item>
+        <item name="android:windowBackground">#F5F5F5</item>
+
+        <!-- Couleur primaire -->
+        <item name="android:colorPrimary">#6750A4</item>
+        <item name="android:colorAccent">#6750A4</item>
+
+        <!-- Barre de statut transparente -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>
