@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV Series</string>
+    <string name="loading_series">Chargement des séries...</string>
+    <string name="error_loading">Erreur lors du chargement</string>
+    <string name="retry">Réessayer</string>
+    <string name="refresh">Actualiser</string>
+    <string name="popular_tv_series">Séries TV Populaires</string>
+    <string name="no_network_description">Pas d\'image disponible</string>
+</resources>
