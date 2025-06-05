@@ -56,44 +56,6 @@ fun TvSeriesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Barre de recherche
-            SearchBar(
-                query = searchFilter.query,
-                onQueryChange = { query ->
-                    viewModel.searchTvSeries(query)
-                },
-                onSearch = { query ->
-                    viewModel.searchTvSeries(query)
-                },
-                isSearchActive = searchFilter.hasActiveFilters(),
-                onToggleFilters = { showFilters = !showFilters }
-            )
-
-            // Panel de filtres par genre
-            GenreFilterPanel(
-                genres = availableGenres,
-                onToggleGenre = { genreName ->
-                    viewModel.toggleGenre(genreName)
-                },
-                onClearFilters = {
-                    viewModel.clearGenreFilters()
-                },
-                isVisible = showFilters
-            )
-
-            // Informations sur les résultats de recherche
-            if (isSearchMode) {
-                SearchResultsInfo(
-                    resultsCount = tvSeriesList.size,
-                    searchQuery = searchFilter.query,
-                    selectedGenres = searchFilter.selectedGenres,
-                    onClearSearch = {
-                        viewModel.loadTvSeries(isRefresh = true)
-                        showFilters = false
-                    }
-                )
-            }
-
             // Contenu principal
             Box(
                 modifier = Modifier.fillMaxSize()
