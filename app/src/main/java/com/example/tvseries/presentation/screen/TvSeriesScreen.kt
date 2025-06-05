@@ -56,17 +56,55 @@ fun TvSeriesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // Barre de recherche
+            SearchBar(
+                query = searchFilter.query,
+                onQueryChange = { query ->
+                    viewModel.searchTvSeries(query)
+                },
+                onSearch = { query ->
+                    viewModel.searchTvSeries(query)
+                },
+                isSearchActive = searchFilter.hasActiveFilters(),
+                onToggleFilters = { showFilters = !showFilters }
+            )
+
+            // Panel de filtres par genre
+            GenreFilterPanel(
+                genres = availableGenres,
+                onToggleGenre = { genreName ->
+                    viewModel.toggleGenre(genreName)
+                },
+                onClearFilters = {
+                    viewModel.clearGenreFilters()
+                },
+                isVisible = showFilters
+            )
+
+            // Informations sur les rÃ©sultats de recherche
+            if (isSearchMode) {
+                SearchResultsInfo(
+                    resultsCount = tvSeriesList.size,
+                    searchQuery = searchFilter.query,
+                    selectedGenres = searchFilter.selectedGenres,
+                    onClearSearch = {
+                        viewModel.loadTvSeries(isRefresh = true)
+                        showFilters = false
+                    }
+                )
+            }
+
             // Contenu principal
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
                 when {
-                    // État de chargement initial
+                    // Ã‰tat de chargement initial
                     paginationState.isLoading && tvSeriesList.isEmpty() -> {
                         LoadingIndicator()
                     }
 
-                    // Liste vide après recherche
+                    // Liste vide aprÃ¨s recherche
                     tvSeriesList.isEmpty() && isSearchMode && !paginationState.isLoading -> {
                         EmptySearchResults(
                             query = searchFilter.query,
@@ -79,7 +117,7 @@ fun TvSeriesScreen(
                         )
                     }
 
-                    // Affichage des données
+                    // Affichage des donnÃ©es
                     else -> {
                         TvSeriesGrid(
                             tvSeries = tvSeriesList,
@@ -118,14 +156,14 @@ fun EmptySearchResults(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "🔍",
+            text = "ðŸ”",
             style = MaterialTheme.typography.displayMedium
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Aucun résultat trouvé",
+            text = "Aucun rÃ©sultat trouvÃ©",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -153,7 +191,7 @@ fun EmptySearchResults(
         Button(
             onClick = onClearSearch
         ) {
-            Text("Voir toutes les séries")
+            Text("Voir toutes les sÃ©ries")
         }
     }
 }
